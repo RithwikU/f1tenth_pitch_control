@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(pitch_control)
 
-# Default to C99
-if(NOT CMAKE_C_STANDARD)
-  set(CMAKE_C_STANDARD 99)
-endif()
-
 # Default to C++14
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -15,11 +10,51 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+# Find dependencies
+foreach(PACKAGE 
+  ament_cmake 
+  ament_cmake_python
+  rclcpp
+  rclpy 
+  geometry_msgs
+  ackermann_msgs
+  sensor_msgs
+  std_msgs
+  visualization_msgs
+  Eigen3
+  tf2_ros
+  )
+
+  find_package(${PACKAGE} REQUIRED)
+
+endforeach()
+
+# Include Cpp "include" directory
+include_directories(include)
+include_directories(
+  ${EIGEN3_INCLUDE_DIRS}
+)
+
+# Create Cpp executable
+add_executable(pitch_control_node src/pitch_control.cpp src/EKF.cpp)
+ament_target_dependencies(rrt_node 
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
+)
+
+# Install Cpp executables
+install(TARGETS
+  pitch_control_node
+  DESTINATION lib/${PROJECT_NAME})
+
+# Install Python modules
+ament_python_install_package(${PROJECT_NAME})
+
+# Install Python executables
+# install(PROGRAMS
+#   scripts/pitch_control.py
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
