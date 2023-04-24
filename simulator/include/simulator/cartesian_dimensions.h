@@ -1,5 +1,5 @@
-#ifndef TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_
-#define TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_
+#ifndef F1TENTH_VARIABLES_CARTESIAN_DIMENSIONS_H_
+#define F1TENTH_VARIABLES_CARTESIAN_DIMENSIONS_H_
 
 #include <cassert>
 
@@ -24,6 +24,6 @@ static constexpr int k6D = 6; // X,Y,Z, roll, pitch, yaw
 enum Dim6D { AX=0, AY, AZ, LX, LY, LZ };
 static const Dim6D AllDim6D[] = {AX, AY, AZ, LX, LY, LZ};
 
-} // namespace towr
+} // namespace f1tenth
 
-#endif /* TOWR_VARIABLES_CARTESIAN_DIMENSIONS_H_ */
+#endif /* F1TENTH_VARIABLES_CARTESIAN_DIMENSIONS_H_ */

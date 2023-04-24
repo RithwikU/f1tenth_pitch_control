@@ -1,4 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
+#include "time.h"
 #include "std_msgs/msg/string.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
@@ -19,21 +20,33 @@ class TerrainPublisher: public rclcpp::Node
     {
     rviz_pub = this->create_publisher<visualization_msgs::msg::MarkerArray>("/terrain", 10);
     std::cout << "Entering callback..." << std::endl;
-    msg_callback(f1tenth::HeightMap::SlopeID);
+
+    time_end = this->now();
+    // TODO: stop the timer after a duration
+//    duration = time_end - time_begin;
+
     timer_ = this->create_wall_timer(
     500ms, std::bind(&TerrainPublisher::timer_callback, this));
+//    if (duration.seconds() > 2.0)
+//    {
+//    timer_->stop();
+//    RCLCPP_INFO(this->get_logger(), "Stopped publishing map");
+//    }
     }
+
 
     void timer_callback()
     {
         msg_callback(f1tenth::HeightMap::SlopeID);
-        RCLCPP_INFO(this->get_logger(), "Published map");
     }
 
     private:
     rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr rviz_pub;
     rclcpp::TimerBase::SharedPtr timer_;
     size_t count_;
+    rclcpp::Time time_begin = this->now();
+    rclcpp::Time time_end;
+//    rclcpp::Duration duration;
 
     void msg_callback(HeightMap::TerrainID msg_in)
     {
@@ -88,7 +101,6 @@ class TerrainPublisher: public rclcpp::Node
         }
         x += dxy;
       }
-//      RCLCPP_INFO(this->get_logger(), "I received the message: '%d'", msg.markers.size());
       rviz_pub->publish(msg);
   }
 
