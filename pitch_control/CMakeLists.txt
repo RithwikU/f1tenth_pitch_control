@@ -28,6 +28,7 @@ foreach(PACKAGE
   visualization_msgs
   Eigen3
   tf2_ros
+  nav_msgs
   )
 
   find_package(${PACKAGE} REQUIRED)
@@ -42,24 +43,14 @@ include_directories(
 
 # Create Cpp executable
 add_executable(pitch_control_node src/pitch_control.cpp src/EKF.cpp)
-ament_target_dependencies(rrt_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros interfaces_hot_wheels
+ament_target_dependencies(pitch_control_node
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
 )
 
 # Install Cpp executables
 install(TARGETS
   pitch_control_node
   DESTINATION lib/${PROJECT_NAME})
-
-# Install Python modules
-ament_python_install_package(${PROJECT_NAME})
-
-# Install Python executables
-# install(PROGRAMS
-#   scripts/pitch_control.py
-#   DESTINATION lib/${PROJECT_NAME}
-# )
-
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
