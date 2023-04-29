@@ -4,6 +4,13 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "ackermann_msgs/msg/ackermann_drive_stamped.hpp"
+#include "nav_msgs/msg/vesc.hpp"
+
+// I think the following is for the imu message? I cant tell without the sim setup
+#include "vesc_driver/vesc_driver.h"
+#include <vesc_msgs/VescStateStamped.h>
+
+
 // #include "geometry_msgs/msg/"
 // #include "std_msgs/msg/string.h"
 
@@ -28,7 +35,8 @@ private:
     // geometry_msgs::msg::Quaternion m_q0; // quaternion from the odometry message
     Eigen::Quaterniond m_quat; // quaternion from the Eigen package
 
-    std::string imu_topic = "/ego_racecar/odom";
+    // std::string imu_topic = "/ego_racecar/odom";
+    std::string imu_topic = "/sensors/imu"; // /raw";
     std::string drive_topic = "/drive";
     
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr mp_imu_sub_;
