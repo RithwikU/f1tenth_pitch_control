@@ -19,6 +19,7 @@
   <depend>visualization_msgs</depend>
   <depend>Eigen3</depend>
   <depend>tf2_ros</depend>
+  <depend>vesc_msgs</depend>
 
   <exec_depend>ros2launch</exec_depend>
 

@@ -29,6 +29,7 @@ foreach(PACKAGE
   Eigen3
   tf2_ros
   nav_msgs
+  vesc_msgs
   )
 
   find_package(${PACKAGE} REQUIRED)
@@ -42,9 +43,9 @@ include_directories(
 )
 
 # Create Cpp executable
-add_executable(pitch_control_node src/pitch_control.cpp src/EKF.cpp)
+add_executable(pitch_control_node src/PID.cpp)
 ament_target_dependencies(pitch_control_node
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros vesc_msgs
 )
 
 # Install Cpp executables
