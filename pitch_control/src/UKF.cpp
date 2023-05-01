@@ -1,11 +1,11 @@
 #include "state_estimate/UKF.hpp"
 
-EKF::EKF() : Node("pitch_control_node")
+UKF::UKF() : Node("pitch_control_node")
 {
 
     // Subscribe to the Odometry messages
     m_imu = this->create_subscription<nav_msgs::msg::Odometry>(
-                    "/ego_racecar/odom", 1, std::bind(&EKF::odom_callback, this, std::placeholders::_1));
+                    "/ego_racecar/odom", 1, std::bind(&UKF::odom_callback, this, std::placeholders::_1));
 
     // Create a publisher to drive
     m_publisher = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>("/drive", 1);
@@ -16,13 +16,13 @@ EKF::EKF() : Node("pitch_control_node")
     // this->declare_parameter("m_thresh", 1.15f, param_desc);  // Speed
 }
 
-void EKF::odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
+void UKF::odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
 {
     // update current speed
     this->m_speed = msg->twist.twist.linear.x; // get the x field of linear
 }
 
-void EKF::scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) 
+void UKF::scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_msg) 
 {
     float ttc;
     // int hit_count = 0; // to filter out false positives (braking when collision isn't imminent)
@@ -72,7 +72,7 @@ void EKF::scan_callback(const sensor_msgs::msg::LaserScan::ConstSharedPtr scan_m
 
 int main(int argc, char ** argv) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<EKF>());
+    rclcpp::spin(std::make_shared<UKF>());
     rclcpp::shutdown();
     return 0;
 }

@@ -8,12 +8,12 @@
 #include "std_msgs/msg/string.h"
 
 
-class EKF : public rclcpp::Node {
+class UKF : public rclcpp::Node {
 // The class that handles emergency braking
 
 public:
     // Default Constructor
-    EKF();
+    UKF();
 
 private:
     double m_speed; // m_ is being used to denote member variables
