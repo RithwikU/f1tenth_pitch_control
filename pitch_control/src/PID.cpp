@@ -65,9 +65,10 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
     // RCLCPP_INFO(this->get_logger(), "msg->imu.ypr.x: %f", msg->imu.ypr.x);
     // std::cout << msg->imu.ypr.x << std::endl;
     // std::cout << error << std::endl;
-    double dt;
+    double dt, curr_time; 
     if (this->m_prev_time != 0) {
-        dt = msg->header.stamp.nanosec * 1e-9 + msg->header.stamp.sec - m_prev_time;
+        curr_time = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
+        dt = curr_time - this->m_prev_time;
     
         RCLCPP_INFO(this->get_logger(), "dt: %f", dt);
 
@@ -88,7 +89,7 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
         // RCLCPP_ERROR(this->get_logger(), "BOOM!"); // INFO, ERROR, WARN
     }
 
-    this->m_prev_time = msg->header.stamp.nanosec * 1e-9 + msg->header.stamp.sec;
+    this->m_prev_time = curr_time;
 }
 
 int main(int argc, char ** argv) {
