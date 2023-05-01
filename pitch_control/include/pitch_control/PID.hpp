@@ -32,7 +32,7 @@ private:
     // double m_pitch;
     // double m_yaw;
     double m_prev_error; 
-    float m_prev_time;
+    double m_prev_time;
     double m_I_sum;
     
     // quaternion messages from the pose
@@ -48,13 +48,10 @@ private:
     // rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr mp_imu_sub_;
     rclcpp::Subscription<vesc_msgs::msg::VescImuStamped>::SharedPtr mp_imu_sub_;
 
-
-
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr mp_drive_pub_;
 
     // void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     // void odom_callback(const sensor_msgs::msg::Imu::ConstSharedPtr msg);
     void odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg);
-
-
+    double deg_to_rad(double angle);
 };
