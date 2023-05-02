@@ -25,7 +25,7 @@ PID::PID() : Node("pid_node"),
 
     auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
     param_desc.description = "Proportional gain constant in the PID controller";
-    this->declare_parameter("kp", 200.0, param_desc);
+    this->declare_parameter("kp", 25.0, param_desc);
 
     param_desc = rcl_interfaces::msg::ParameterDescriptor{};
     param_desc.description = "Derivative gain constant in the PID controller";
