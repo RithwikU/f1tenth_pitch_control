@@ -13,6 +13,7 @@
 // #include "vesc_driver/vesc_driver.h"
 #include "vesc_msgs/msg/vesc_imu_stamped.hpp"
 #include "std_msgs/msg/float64.hpp"
+#include "sensor_msgs/msg/joy.hpp"
 // #include "vesc_msgs"
 
 
@@ -35,6 +36,8 @@ private:
     double m_prev_error; 
     double m_prev_time;
     double m_I_sum;
+
+    bool m_pitch_control_flag;
     
     // quaternion messages from the pose
     // geometry_msgs::msg::Quaternion m_q0; // quaternion from the odometry message
@@ -45,10 +48,12 @@ private:
     // std::string imu_topic = "/sensors/imu/raw";
     std::string drive_topic = "/drive";
     std::string error_topic = "/pitch_error";
+    std::string joy_topic = "/joy";
     
     // rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr mp_imu_sub_;
     // rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr mp_imu_sub_;
     rclcpp::Subscription<vesc_msgs::msg::VescImuStamped>::SharedPtr mp_imu_sub_;
+    rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr mp_joy_sub_;
 
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr mp_drive_pub_;
     rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr mp_error_pub_;
@@ -56,5 +61,6 @@ private:
     // void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     // void odom_callback(const sensor_msgs::msg::Imu::ConstSharedPtr msg);
     void odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg);
+    void joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg);
     double deg_to_rad(double angle);
 };
