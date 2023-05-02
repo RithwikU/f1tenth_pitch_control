@@ -48,9 +48,15 @@ ament_target_dependencies(pitch_control_node
   rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros vesc_msgs
 )
 
+add_executable(straight_pub_node src/drive_straight.cpp)
+ament_target_dependencies(straight_pub_node
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+)
+
 # Install Cpp executables
 install(TARGETS
   pitch_control_node
+  straight_pub_node
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

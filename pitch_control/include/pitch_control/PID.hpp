@@ -12,6 +12,7 @@
 // I think the following is for the imu message? I cant tell without the sim setup
 // #include "vesc_driver/vesc_driver.h"
 #include "vesc_msgs/msg/vesc_imu_stamped.hpp"
+#include "std_msgs/msg/float64.hpp"
 // #include "vesc_msgs"
 
 
@@ -43,12 +44,14 @@ private:
     std::string imu_topic = "/sensors/imu"; // /raw";
     // std::string imu_topic = "/sensors/imu/raw";
     std::string drive_topic = "/drive";
+    std::string error_topic = "/pitch_error";
     
     // rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr mp_imu_sub_;
     // rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr mp_imu_sub_;
     rclcpp::Subscription<vesc_msgs::msg::VescImuStamped>::SharedPtr mp_imu_sub_;
 
     rclcpp::Publisher<ackermann_msgs::msg::AckermannDriveStamped>::SharedPtr mp_drive_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr mp_error_pub_;
 
     // void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
     // void odom_callback(const sensor_msgs::msg::Imu::ConstSharedPtr msg);
