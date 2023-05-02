@@ -2,7 +2,7 @@
 
 using namespace std;
 
-PID::PID() : Node("pid_node"),
+PID::PID() : Node("pitch_control_node"),
                 m_prev_error(0.0), m_prev_time(0.0), m_I_sum(0.0)
 {
 
@@ -16,6 +16,8 @@ PID::PID() : Node("pid_node"),
 
     // Create a publisher to drive
     mp_drive_pub_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(this->drive_topic, 1);
+    mp_error_pub_ = this->create_publisher<std_msgs::msg::Float64>(this->error_topic, 1);
+
 
     // Make a parameter (example below)
     // auto param_desc = rcl_interfaces::msg::ParameterDescriptor{};
@@ -73,6 +75,10 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
         RCLCPP_INFO(this->get_logger(), "control: %f", control);
 
         this->m_prev_error = error; 
+
+        std_msgs::msg::Float64 error_msg;
+        error_msg.data = error;
+        mp_error_pub_->publish(error_msg);
 
         ackermann_msgs::msg::AckermannDriveStamped drive_msg;
         drive_msg.drive.speed = control;
