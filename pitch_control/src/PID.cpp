@@ -76,7 +76,7 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
     double dt, curr_time;
     curr_time = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
 
-    if (this->m_prev_time) {
+    if (this->m_prev_time && this->m_pitch_control_flag) {
         dt = curr_time - this->m_prev_time;
         
         // cout << this->m_prev_time << endl;

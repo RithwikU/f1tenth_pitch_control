@@ -33,12 +33,27 @@ class StraightPublisher : public rclcpp::Node
             auto message = ackermann_msgs::msg::AckermannDriveStamped();
             message.header.stamp = this->get_clock()->now();
             message.header.frame_id = "base_link";
-            message.drive.speed = double(count_/10) + 0.5;
+            // message.drive.speed = double(count_/5)/2.0 + 2.0;
+
+            if(count_ < 20)
+              message.drive.speed = 1.0;
+            else if(count_ < 35)
+              message.drive.speed = 5.0;
+            // else if(count_ < 45)
+            //   message.drive.speed = 6.0;
+            else
+              message.drive.speed = 8.0;
+
             message.drive.speed = message.drive.speed > 8.0 ? 8.0 : message.drive.speed;
+            // message.drive.speed = -message.drive.speed;
             message.drive.steering_angle = 0.0;
             RCLCPP_INFO(this->get_logger(), "Speed: '%f'", message.drive.speed);
             publisher_->publish(message);
             count_++;
+        }
+        else
+        {
+          count_ = 0;
         }
     }
     rclcpp::TimerBase::SharedPtr timer_;
