@@ -13,7 +13,7 @@ PID::PID() : Node("pitch_control_node"),
         //                 this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
     mp_imu_sub_ = this->create_subscription<vesc_msgs::msg::VescImuStamped>(
                     this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
-    mp_imu_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
+    mp_joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
                     this->joy_topic, 1, std::bind(&PID::joy_callback, this, std::placeholders::_1));
 
     // Create a publisher to drive
@@ -52,7 +52,7 @@ double PID::deg_to_rad(double angle)
 }
 
 
-void joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
+void PID::joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
 {
     if(msg->buttons[6] == 0 && msg->buttons[7] == 1)
     {
@@ -60,7 +60,7 @@ void joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
     }
     else
     {
-        thid->m_pitch_control_flag = false;
+        this->m_pitch_control_flag = false;
     }
 }
 
