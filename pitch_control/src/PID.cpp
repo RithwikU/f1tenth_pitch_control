@@ -3,16 +3,18 @@
 using namespace std;
 
 PID::PID() : Node("pitch_control_node"),
-                m_prev_error(0.0), m_prev_time(0.0), m_I_sum(0.0)
+                m_prev_error(0.0), m_prev_time(0.0), m_I_sum(0.0), m_pitch_control_flag(false)
 {
 
     // Subscribe to the Odometry messages
     // mp_imu_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
     //                 this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
     // mp_imu_sub_ = this->create_subscription<sensor_msgs::msg::Imu>(
-    //                 this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
+        //                 this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
     mp_imu_sub_ = this->create_subscription<vesc_msgs::msg::VescImuStamped>(
                     this->imu_topic, 1, std::bind(&PID::odom_callback, this, std::placeholders::_1));
+    mp_imu_sub_ = this->create_subscription<sensor_msgs::msg::Joy>(
+                    this->joy_topic, 1, std::bind(&PID::joy_callback, this, std::placeholders::_1));
 
     // Create a publisher to drive
     mp_drive_pub_ = this->create_publisher<ackermann_msgs::msg::AckermannDriveStamped>(this->drive_topic, 1);
@@ -49,6 +51,21 @@ double PID::deg_to_rad(double angle)
     return ((angle * M_PI)/180.0);
 }
 
+
+void joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
+{
+    if(msg->buttons[6] == 0 && msg->buttons[7] == 1)
+    {
+        this->m_pitch_control_flag = true;
+    }
+    else
+    {
+        thid->m_pitch_control_flag = false;
+    }
+}
+
+
+
 void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg)
 {
     double error = this->get_parameter("phi_des").get_parameter_value().get<double>() - deg_to_rad(msg->imu.ypr.x); // want roll since x_imu = -y_car
@@ -59,11 +76,11 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
     double dt, curr_time;
     curr_time = msg->header.stamp.sec + msg->header.stamp.nanosec * 1e-9;
 
-    if (m_prev_time) {
-        dt = curr_time - m_prev_time;
+    if (this->m_prev_time) {
+        dt = curr_time - this->m_prev_time;
         
-        // cout << m_prev_time << endl;
-        // RCLCPP_INFO(this->get_logger(), "current time: %f, previous time after: %f", curr_time, m_prev_time);
+        // cout << this->m_prev_time << endl;
+        // RCLCPP_INFO(this->get_logger(), "current time: %f, previous time after: %f", curr_time, this->m_prev_time);
         RCLCPP_INFO(this->get_logger(), "dt: %f", dt);
 
         this->m_I_sum += this->get_parameter("ki").get_parameter_value().get<double>() * error * dt;
@@ -86,8 +103,8 @@ void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg
         // RCLCPP_ERROR(this->get_logger(), "BOOM!"); // INFO, ERROR, WARN
     }
 
-    // RCLCPP_INFO(this->get_logger(), "current time first: %f, previous time : %f", curr_time, m_prev_time);
-    m_prev_time = curr_time;
+    // RCLCPP_INFO(this->get_logger(), "current time first: %f, previous time : %f", curr_time, this->m_prev_time);
+    this->m_prev_time = curr_time;
 }
 
 int main(int argc, char ** argv) {
