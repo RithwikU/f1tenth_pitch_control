@@ -38,11 +38,11 @@ class StraightPublisher : public rclcpp::Node
             if(count_ < 20)
               message.drive.speed = 1.0;
             else if(count_ < 35)
-              message.drive.speed = 5.0;
+              message.drive.speed = 3.5;
             // else if(count_ < 45)
             //   message.drive.speed = 6.0;
             else
-              message.drive.speed = 8.0;
+              message.drive.speed = 6.5;
 
             message.drive.speed = message.drive.speed > 8.0 ? 8.0 : message.drive.speed;
             // message.drive.speed = -message.drive.speed;
