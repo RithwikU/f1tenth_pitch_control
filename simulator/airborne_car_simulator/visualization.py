@@ -22,7 +22,7 @@ def animate_trajectory(car, control_v):
     u = car.take_off_v
     theta = car.angle0
     pitch_angles, _ = car.get_state_response(control_v)
-    print([np.rad2deg(angle) for angle in pitch_angles])
+    print(pitch_angles)
 
     t = np.linspace(0, car.t_flight, len(pitch_angles))
     x = u * np.cos(theta) * t
@@ -37,8 +37,6 @@ def animate_trajectory(car, control_v):
     ymax = max(y)
     xysmall = min(xmax, ymax)
     maxscale = max(xmax, ymax)
-    # circle = plt.Circle((xmin, ymin), radius=0.005)
-    # ax.add_patch(circle)
 
     rect = patches.Rectangle((xmin, ymin), car.l, car.h, color="blue", rotation_point='center')
     ax.add_patch(rect)
@@ -65,6 +63,11 @@ def animate_trajectory(car, control_v):
 
 
 def overlay_trajectory(car, control_v):
+    """
+    Get the overlay car trajectory plot.
+    :param control_v: control input
+    :param car: RaceCar object
+    """
     _, traj = car.get_state_response(control_v)
     for i, s in enumerate(traj):
         x, y, pitch, t = s[:4]
@@ -87,9 +90,9 @@ def overlay_trajectory(car, control_v):
     plt.show()
 
 
-def plot_pitch_angle(car):
+def plot_initial_pitch_angle(car):
     """
-    Plot static pitch angle.
+    Plot initial static pitch angle.
     :param car:
     :return:
     """
@@ -108,13 +111,18 @@ def plot_pitch_angle(car):
     plt.show()
 
 
-def plot_projectile_motion(car, v):
+def plot_projectile_motion(car):
+    """
+    Plot the parabola of the car's motion.
+    :param car:
+    :return:
+    """
     t = np.linspace(0, 5, num=100)  # Set time as 'continuous' parameter.
     x1 = []
     y1 = []
     for k in t:
-        x = ((v * k) * np.cos(car.angle0))  # get positions at every point in time
-        y = ((v * k) * np.sin(car.angle0)) - ((0.5 * car.g) * (k ** 2))
+        x = ((car.take_off_v * k) * np.cos(car.angle0))  # get positions at every point in time
+        y = ((car.take_off_v * k) * np.sin(car.angle0)) - ((0.5 * car.g) * (k ** 2))
         x1.append(x)
         y1.append(y)
     p = [i for i, j in enumerate(y1) if j < 0]  # Don't fall through the floor

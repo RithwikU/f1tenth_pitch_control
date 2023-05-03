@@ -1,6 +1,6 @@
 import numpy as np
 from race_car import RaceCar
-from visualization import animate_trajectory, overlay_trajectory
+from visualization import animate_trajectory, overlay_trajectory, plot_projectile_motion
 
 if __name__ == '__main__':
     params = {'car_l': 0.3303,  # meters #'lf': 0.15875, 'lr': 0.17145 according to f1tenth_gym
@@ -18,4 +18,6 @@ if __name__ == '__main__':
     v = 0.5  # m/s, control input
     car = RaceCar(params)
     animate_trajectory(car, v)
-    overlay_trajectory(car, v)
+    # overlay_trajectory(car, v)
+    # plot_projectile_motion(car)
+    # car.get_state_response(0.5, True)

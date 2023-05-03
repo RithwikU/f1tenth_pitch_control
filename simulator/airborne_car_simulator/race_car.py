@@ -8,6 +8,7 @@ from math import cos, sin, pi
 from pid import PID
 import time
 
+
 class RaceCar():
     def __init__(self, params):
         self.params = params
@@ -30,7 +31,7 @@ class RaceCar():
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
         self.pid = PID(0.5, 1e-5, 1e-5)  # PID pitch control
-        self.last_time = time.time()
+        # self.last_time = time.time()
 
     def calculate_angular_vel(self, v):
         """
@@ -79,7 +80,7 @@ class RaceCar():
         gt_pitch = self.get_pitch_angle(t, v)
         # noise = np.random.normal(0, 0.1, 1)
         # curr_pitch = gt_pitch + noise  # This is from IMU in reality
-        error = gt_pitch# - curr_pitch
+        error = gt_pitch  # - curr_pitch
         pitch = self.pid.update(error, dt)
         return pitch
 
@@ -101,7 +102,7 @@ class RaceCar():
             distance_x, distance_y = self.get_gt_position(t_elapsed)
             # curr_time = time.time()
             # dt = curr_time - self.last_time
-            t_elapsed += self.dt # if change to dt, too many waypoints
+            t_elapsed += self.dt  # if change to dt, too many waypoints
             angular_velocity = self.step(t_elapsed, v, self.dt)
             pitch_angle = prev_angle + self.dt * angular_velocity
             prev_angle = pitch_angle
