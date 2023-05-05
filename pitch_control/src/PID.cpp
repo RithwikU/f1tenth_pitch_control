@@ -42,7 +42,7 @@ PID::PID() : Node("pitch_control_node"),
 
     param_desc = rcl_interfaces::msg::ParameterDescriptor{};
     param_desc.description = "Desired pitch landing angle of the vehicle";
-    this->declare_parameter("phi_des", 0.0, param_desc);
+    this->declare_parameter("phi_des", 0.34, param_desc);
 
 }
 
