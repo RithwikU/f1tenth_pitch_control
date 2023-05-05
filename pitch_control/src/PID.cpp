@@ -69,7 +69,7 @@ void PID::joy_callback(const sensor_msgs::msg::Joy::ConstSharedPtr msg)
 void PID::odom_callback(const vesc_msgs::msg::VescImuStamped::ConstSharedPtr msg)
 {
     double error = this->get_parameter("phi_des").get_parameter_value().get<double>() - deg_to_rad(msg->imu.ypr.x); // want roll since x_imu = -y_car
-    // RCLCPP_INFO(this->get_logger(), "error: %f", error);
+    RCLCPP_INFO(this->get_logger(), "error: %f", error);
     // RCLCPP_INFO(this->get_logger(), "msg->imu.ypr.x: %f", msg->imu.ypr.x);
     // std::cout << msg->imu.ypr.x << std::endl;
     // std::cout << error << std::endl;
