@@ -14,12 +14,12 @@ if __name__ == '__main__':
               'gravity': 9.81,  # m/s^2
               'distance': 2.5,  # meters: distance between the ramps
               'initial_angle': np.pi / 180 * 22,  # degrees, angle of the ramp
-              'take_off_v': 6.5
+              'take_off_v': 6.5,
+              'phi_des': -0.34 # radians, desired landing pitch angle
               }
-    v = 0.5  # m/s, control input
     car = RaceCar(params)
-    animate_trajectory(car, v)
-    # overlay_trajectory(car, v)
+    animate_trajectory(car)
+    overlay_trajectory(car)
     # plot_projectile_motion(car)
     # car.get_state_response(0.5, True)
     car.get_distance_from_take_off_v()
