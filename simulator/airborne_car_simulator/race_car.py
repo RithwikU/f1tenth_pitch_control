@@ -33,7 +33,7 @@ class RaceCar:
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
-        self.pid = PID(0.5, 1e-5, 1e-5)  # PID pitch control
+        self.pid = PID(40.0, 1e-5, 1e-5)  # PID pitch control
         self.prev_angle = self.angle0
         self.prev_v = self.take_off_v
 
@@ -43,13 +43,13 @@ class RaceCar:
         https://physics.stackexchange.com/questions/734513/could-pressing-the-brakes-on-a-car-in-mid-air-affect-its-pitch-rotation
         :return: angular velocity of the car
         """
-        I_w = 2 * (self.mass_wheel * self.wheel_radius ** 2 + self.mass_axis * self.axis_radius ** 2)
+        I_w = 2 * (self.mass_wheel * (self.wheel_radius ** 2) + self.mass_axis * (self.axis_radius ** 2))
         omega_w = self.prev_v / self.wheel_radius
         L_w = omega_w * I_w
         I_cm = self.mass_car * (self.l ** 2 + self.h ** 2) / 12
-        I_parallel_axis = I_cm + self.mass_car * self.distance_cm ** 2
-        omega_car = L_w / I_parallel_axis
-        self.prev_v = self.prev_v + omega_car * self.dt
+        # I_parallel_axis = I_cm + self.mass_car * self.distance_cm ** 2
+        # omega_car = L_w / I_parallel_axis
+        omega_car = L_w / I_cm
         return omega_car
 
     def get_gt_position(self, t):
@@ -69,19 +69,18 @@ class RaceCar:
         Get pitch angle at timestamp t, assuming constant angular velocity of wheels.
         :return: pitch angle of the car in radians
         """
-        v = self.step()
-        current_angle = self.prev_angle + v * self.dt
+        # v = self.step()
+        omega_car = self.calculate_angular_vel()
+        current_angle = self.prev_angle + omega_car * self.dt
         self.prev_angle = current_angle
         return current_angle
 
 
-    def step(self):
+    def step(self, pitch_angle):
         """
         Calculate the velocity to publish to '/drive.'
         """
-        current_omega = self.calculate_angular_vel()
-        current_angle = self.prev_angle + current_omega * self.dt
-        error = self.phi_des - current_angle
+        error = self.phi_des - pitch_angle
         v = self.pid.update(error, self.dt)
         return v
 
@@ -101,10 +100,10 @@ class RaceCar:
             distance_x, distance_y = self.get_gt_position(t_elapsed)
             t_elapsed += self.dt
             # angular_velocity = self.step(t_elapsed, v, self.dt)
-            v = self.step()
             # pitch_angle = prev_angle + self.dt * angular_velocity
             pitch_angle = self.get_pitch_angle()
-            self.prev_angle = pitch_angle
+            v_PID = self.step(pitch_angle)
+            self.prev_v = v_PID
             traj.append((distance_x, distance_y, pitch_angle, t_elapsed))
             pitch_angles.append(pitch_angle)
             distances.append(distance_x)
