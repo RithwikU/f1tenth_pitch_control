@@ -55,7 +55,7 @@ def animate_trajectory(car):
         rect.set_transform(tr)
         line.axes.axis([0, max(np.append(x, y)), 0, max(np.append(x, y))])
         # line.axes.axis([0, max(np.append(center_x, center_y)), 0, max(np.append(center_x, center_y))])
-        ax.set_xlim(min(x), 1.0)
+        ax.set_xlim(min(x), 3.0)
         ax.set_ylim(min(y), 1.0)
         return line, rect
 
