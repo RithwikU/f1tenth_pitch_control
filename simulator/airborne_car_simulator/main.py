@@ -12,8 +12,9 @@ if __name__ == '__main__':
               'wheel_radius': 0.04826,  # meters
               'distance_cm': 0.02,  # meters: distance between the center of mass and the
               'gravity': 9.81,  # m/s^2
-              'distance': 1.0,  # meters: distance between the ramps
-              'initial_angle': np.pi / 4  # radians, angle of the ramp
+              'distance': 2.5,  # meters: distance between the ramps
+              'initial_angle': np.pi / 180 * 22,  # degrees, angle of the ramp
+              'take_off_v': 6.5
               }
     v = 0.5  # m/s, control input
     car = RaceCar(params)
@@ -21,3 +22,4 @@ if __name__ == '__main__':
     # overlay_trajectory(car, v)
     # plot_projectile_motion(car)
     # car.get_state_response(0.5, True)
+    car.get_distance_from_take_off_v()

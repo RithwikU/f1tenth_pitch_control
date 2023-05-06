@@ -9,7 +9,7 @@ from pid import PID
 import time
 
 
-class RaceCar():
+class RaceCar:
     def __init__(self, params):
         self.params = params
         self.l = params['car_l']
@@ -24,9 +24,11 @@ class RaceCar():
         # Fixed for now; need a separate control problem if take take-off velocity as an input
         # self.take_off_v = params['take_off_velocity']
         # Distance between two slopes
-        self.distance = params['distance']
+        # self.distance = params['distance']
         self.angle0 = params['initial_angle']
-        self.take_off_v = np.sqrt(self.distance * self.g / np.sin(2 * self.angle0))
+        # self.take_off_v = np.sqrt(self.distance * self.g / np.sin(2 * self.angle0))
+        self.take_off_v = params['take_off_v']
+        print(f'take_off_v is {self.take_off_v}')
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
@@ -124,3 +126,11 @@ class RaceCar():
             plt.xlabel('distances')
             plt.show()
         return pitch_angles, traj
+
+    def get_distance_from_take_off_v(self):
+        """
+        Get range of a projectile motion based on take off velocity.
+        """
+        R = self.take_off_v ** 2 * sin(2 * self.angle0) / self.g
+        print(f'Range of projectile motion is {R}')
+        return R
