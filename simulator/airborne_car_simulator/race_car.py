@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import animation
 import math as m
-from math import cos, sin, pi
 from pid import PID
 
 
@@ -22,8 +21,6 @@ class RaceCar:
         self.distance_cm = params['distance_cm']
         # Fixed for now; need a separate control problem if take take-off velocity as an input
         # self.take_off_v = params['take_off_velocity']
-        # Distance between two slopes
-        # self.distance = params['distance']
         self.angle0 = params['initial_angle']
         self.phi_des = params['phi_des']
         # self.take_off_v = np.sqrt(self.distance * self.g / np.sin(2 * self.angle0))
@@ -32,9 +29,11 @@ class RaceCar:
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
-        self.pid = PID(30.0, 1e-5, 1e-5)  # PID pitch control
+        self.pid = PID(20.0, 1e-5, 1e-5)  # PID pitch control
         self.prev_angle = self.angle0
         self.prev_v = self.take_off_v
+        # Distance between two slopes
+        self.distance = self.get_distance_from_take_off_v()
 
     def calculate_angular_vel(self):
         """
@@ -124,6 +123,6 @@ class RaceCar:
         """
         Get range of a projectile motion based on take off velocity.
         """
-        R = self.take_off_v ** 2 * sin(2 * self.angle0) / self.g
+        R = self.take_off_v ** 2 * np.sin(2 * self.angle0) / self.g
         print(f'Range of projectile motion is {R}')
         return R

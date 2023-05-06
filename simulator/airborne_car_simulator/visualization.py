@@ -40,7 +40,6 @@ def animate_trajectory(car):
 
     rect = patches.Rectangle((xmin, ymin), car.l, car.h, fc=to_rgba('blue', 0.2), rotation_point='center')
     print(f'car initial angle is {car.angle0}')
-    # initial_tr = mpl.transforms.Affine2D().rotate_around(x[0]+0.5*car.l, y[0]+0.5*car.h, car.angle0)
     initial_tr = mpl.transforms.Affine2D().rotate(car.angle0)
     rect.set_transform(initial_tr)
     ax.add_patch(rect)
@@ -50,8 +49,6 @@ def animate_trajectory(car):
         # rect.center = x[num], y[num]
         center_x = x[num] - car.l / 2
         center_y = y[num] - car.h / 2
-        # tr = mpl.transforms.Affine2D().rotate_around(x[num], y[num], pitch_angles[num]) \
-        #          .translate(x[num]-0.5*car.l, y[num]-0.5*car.h) + ax.transData
         tr = mpl.transforms.Affine2D().rotate(pitch_angles[num]) \
                      .translate(x[num]-0.5*car.l, y[num]-0.5*car.h) + ax.transData
         rect.set_transform(tr)
@@ -72,7 +69,7 @@ def overlay_trajectory(car):
     Get the overlay car trajectory plot.
     :param car: RaceCar object
     """
-    _, traj = car.get_state_response()
+    pitch_angles, traj = car.get_state_response()
     interval = 20
     fig, ax = plt.subplots()
     ax.set_xlim(0, 7.0)
@@ -81,7 +78,6 @@ def overlay_trajectory(car):
         x, y, pitch, t = s[:4]
         car_xmin = x# - car.l / 2
         car_ymin = y# - car.h / 2
-
         car_fig = mpl.patches.Rectangle(
             (car_xmin,
              car_ymin),
@@ -89,7 +85,7 @@ def overlay_trajectory(car):
             car.h,
             rotation_point='center',
             alpha=(0.8 * i) / len(traj))
-        rotation = mpl.transforms.Affine2D().rotate(car.angle0+pitch) \
+        rotation = mpl.transforms.Affine2D().rotate(pitch) \
                    .translate(x-0.5*car.l, y-0.5*car.h) + ax.transData
         car_fig.set_transform(rotation)
         if i % interval == 0:

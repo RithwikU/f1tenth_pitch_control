@@ -17,9 +17,8 @@ if __name__ == '__main__':
               'take_off_v': 6.5,
               'phi_des': -0.22 # radians, desired landing pitch angle
               }
-    car = RaceCar(params)
-    animate_trajectory(car)
-    overlay_trajectory(car)
-    # plot_projectile_motion(car)
-    # car.get_state_response(0.5, True)
-    car.get_distance_from_take_off_v()
+    car1 = RaceCar(params)
+    animate_trajectory(car1)
+    car2 = RaceCar(params)
+    overlay_trajectory(car2)
+    plot_projectile_motion(car1)
