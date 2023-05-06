@@ -13,12 +13,12 @@ if __name__ == '__main__':
               'distance_cm': 0.02,  # meters: distance between the center of mass and the
               'gravity': 9.81,  # m/s^2
               'distance': 2.5,  # meters: distance between the ramps
-              'initial_angle': np.pi / 180 * 22,  # degrees, angle of the ramp
+              'initial_angle': np.pi / 180 * 22,  # radians, angle of the ramp
               'take_off_v': 6.5,
               'phi_des': -0.22 # radians, desired landing pitch angle
               }
     car = RaceCar(params)
-    # animate_trajectory(car)
+    animate_trajectory(car)
     overlay_trajectory(car)
     # plot_projectile_motion(car)
     # car.get_state_response(0.5, True)

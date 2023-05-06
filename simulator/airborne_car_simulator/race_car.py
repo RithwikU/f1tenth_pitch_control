@@ -6,7 +6,6 @@ from matplotlib import animation
 import math as m
 from math import cos, sin, pi
 from pid import PID
-import time
 
 
 class RaceCar:
@@ -33,7 +32,7 @@ class RaceCar:
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
-        self.pid = PID(40.0, 1e-5, 1e-5)  # PID pitch control
+        self.pid = PID(30.0, 1e-5, 1e-5)  # PID pitch control
         self.prev_angle = self.angle0
         self.prev_v = self.take_off_v
 
@@ -74,7 +73,6 @@ class RaceCar:
         current_angle = self.prev_angle + omega_car * self.dt
         self.prev_angle = current_angle
         return current_angle
-
 
     def step(self, pitch_angle):
         """
