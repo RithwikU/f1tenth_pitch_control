@@ -4,12 +4,10 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib import animation
 import math as m
-from math import cos, sin, pi
 from pid import PID
-import time
 
 
-class RaceCar():
+class RaceCar:
     def __init__(self, params):
         self.params = params
         self.l = params['car_l']
@@ -23,29 +21,33 @@ class RaceCar():
         self.distance_cm = params['distance_cm']
         # Fixed for now; need a separate control problem if take take-off velocity as an input
         # self.take_off_v = params['take_off_velocity']
-        # Distance between two slopes
-        self.distance = params['distance']
         self.angle0 = params['initial_angle']
-        self.take_off_v = np.sqrt(self.distance * self.g / np.sin(2 * self.angle0))
+        self.phi_des = params['phi_des']
+        # self.take_off_v = np.sqrt(self.distance * self.g / np.sin(2 * self.angle0))
+        self.take_off_v = params['take_off_v']
+        print(f'take_off_v is {self.take_off_v}')
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
-        self.pid = PID(0.5, 1e-5, 1e-5)  # PID pitch control
-        # self.last_time = time.time()
+        self.pid = PID(20.0, 1e-5, 1e-5)  # PID pitch control
+        self.prev_angle = self.angle0
+        self.prev_v = self.take_off_v
+        # Distance between two slopes
+        self.distance = self.get_distance_from_take_off_v()
 
-    def calculate_angular_vel(self, v):
+    def calculate_angular_vel(self):
         """
         TODO: Need to confirm if we can calculate car's cuboid moment based on parallel-axis theorem.
         https://physics.stackexchange.com/questions/734513/could-pressing-the-brakes-on-a-car-in-mid-air-affect-its-pitch-rotation
-        :param v: velocity of wheels in the air, from '/drive' topic
         :return: angular velocity of the car
         """
-        I_w = 2 * (self.mass_wheel * self.wheel_radius ** 2 + self.mass_axis * self.axis_radius ** 2)
-        omega_w = v / self.wheel_radius
+        I_w = 2 * (self.mass_wheel * (self.wheel_radius ** 2) + self.mass_axis * (self.axis_radius ** 2))
+        omega_w = self.prev_v / self.wheel_radius
         L_w = omega_w * I_w
         I_cm = self.mass_car * (self.l ** 2 + self.h ** 2) / 12
-        I_parallel_axis = I_cm + self.mass_car * self.distance_cm ** 2
-        omega_car = L_w / I_parallel_axis
+        # I_parallel_axis = I_cm + self.mass_car * self.distance_cm ** 2
+        # omega_car = L_w / I_parallel_axis
+        omega_car = L_w / I_cm
         return omega_car
 
     def get_gt_position(self, t):
@@ -60,57 +62,49 @@ class RaceCar():
         y = ((self.take_off_v * t) * np.sin(self.angle0)) - ((0.5 * self.g) * (t ** 2))
         return x, y
 
-    def get_pitch_angle(self, t, v):
+    def get_pitch_angle(self):
         """
         Get pitch angle at timestamp t, assuming constant angular velocity of wheels.
-        :param t: timestamp t
-        :param v: velocity of wheels in the air, from '/drive' topic
         :return: pitch angle of the car in radians
         """
-        angular_vel = self.calculate_angular_vel(v)
-        return angular_vel * t
+        # v = self.step()
+        omega_car = self.calculate_angular_vel()
+        current_angle = self.prev_angle + omega_car * self.dt
+        self.prev_angle = current_angle
+        return current_angle
 
-    def step(self, t, v, dt):
+    def step(self, pitch_angle):
         """
-
-        :param t: timestamp t
-        :param v: velocity of wheels in the air, from '/drive' topic
-        :return: angular velocity at t
+        Calculate the velocity to publish to '/drive.'
         """
-        gt_pitch = self.get_pitch_angle(t, v)
-        # noise = np.random.normal(0, 0.1, 1)
-        # curr_pitch = gt_pitch + noise  # This is from IMU in reality
-        error = gt_pitch  # - curr_pitch
-        pitch = self.pid.update(error, dt)
-        return pitch
+        error = self.phi_des - pitch_angle
+        v = self.pid.update(error, self.dt)
+        return v
 
-    def get_state_response(self, v, plot=False):
+    def get_state_response(self, plot=False):
         """
         Generate state response of PID with control input v
         :param plot: flag to plot pitch angles
-        :param v: velocity of wheels in the air, from '/drive' topic
         :return:
         """
         t_elapsed = 0
         pitch_angles = []
-        prev_angle = 0
         traj = []  # (x, y, pitch, t)
         distances = []
         timestamps = []
-        print(f'total flight time is {self.t_flight}s')
+        print(f'total flight time is {self.t_flight} s')
         while t_elapsed < self.t_flight:
             distance_x, distance_y = self.get_gt_position(t_elapsed)
-            # curr_time = time.time()
-            # dt = curr_time - self.last_time
-            t_elapsed += self.dt  # if change to dt, too many waypoints
-            angular_velocity = self.step(t_elapsed, v, self.dt)
-            pitch_angle = prev_angle + self.dt * angular_velocity
-            prev_angle = pitch_angle
-            pitch_angles.append(pitch_angle)
+            t_elapsed += self.dt
+            # angular_velocity = self.step(t_elapsed, v, self.dt)
+            # pitch_angle = prev_angle + self.dt * angular_velocity
+            pitch_angle = self.get_pitch_angle()
+            v_PID = self.step(pitch_angle)
+            self.prev_v = v_PID
             traj.append((distance_x, distance_y, pitch_angle, t_elapsed))
+            pitch_angles.append(pitch_angle)
             distances.append(distance_x)
             timestamps.append(t_elapsed)
-            # self.last_time = curr_time
         if plot:
             plt.plot(timestamps, pitch_angles)
             plt.title('pitch angles vs. t')
@@ -124,3 +118,11 @@ class RaceCar():
             plt.xlabel('distances')
             plt.show()
         return pitch_angles, traj
+
+    def get_distance_from_take_off_v(self):
+        """
+        Get range of a projectile motion based on take off velocity.
+        """
+        R = self.take_off_v ** 2 * np.sin(2 * self.angle0) / self.g
+        print(f'Range of projectile motion is {R}')
+        return R

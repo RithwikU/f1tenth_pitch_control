@@ -14,6 +14,7 @@ class PID:
 
     def update(self, error, dt) -> float:
         proportional = error
-        self.integral = (error + self.previous_error) / 2 * dt
+        self.integral += error * dt
         derivative = (error - self.previous_error) / dt
+        self.previous_error = error
         return self.Kp * proportional + self.Ki * self.integral + self.Kd * derivative
