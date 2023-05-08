@@ -15,7 +15,8 @@ if __name__ == '__main__':
               'distance': 2.5,  # meters: distance between the ramps
               'initial_angle': np.pi / 180 * 22,  # radians, angle of the ramp
               'take_off_v': 6.5,
-              'phi_des': -0.22 # radians, desired landing pitch angle
+              'phi_des': -0.28, # radians, desired landing pitch angle
+              'input_v': 3.0 # v of no pid control; for visualization purposes
               }
     car1 = RaceCar(params)
     animate_trajectory(car1)

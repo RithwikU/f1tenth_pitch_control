@@ -29,11 +29,15 @@ class RaceCar:
         # Total flight time
         self.t_flight = 2 * self.take_off_v * np.sin(self.angle0) / self.g
         self.dt = 0.001
-        self.pid = PID(20.0, 1e-5, 1e-5)  # PID pitch control
+        self.pid = PID(6.0, 1e-5, 1e-5)  # PID pitch control
         self.prev_angle = self.angle0
         self.prev_v = self.take_off_v
         # Distance between two slopes
         self.distance = self.get_distance_from_take_off_v()
+        # No pid control params
+        self.input_v = params['input_v']
+        self.prev_v_no_pid = self.take_off_v
+        self.prev_angle_no_pid = self.angle0
 
     def calculate_angular_vel(self):
         """
@@ -73,6 +77,16 @@ class RaceCar:
         self.prev_angle = current_angle
         return current_angle
 
+    def get_pitch_angle_no_pid(self):
+        I_w = 2 * (self.mass_wheel * (self.wheel_radius ** 2) + self.mass_axis * (self.axis_radius ** 2))
+        omega_w = self.input_v / self.wheel_radius
+        L_w = omega_w * I_w
+        I_cm = self.mass_car * (self.l ** 2 + self.h ** 2) / 12
+        omega_car = L_w / I_cm
+        current_angle = self.prev_angle_no_pid + omega_car * self.dt
+        self.prev_angle_no_pid = current_angle
+        return current_angle
+
     def step(self, pitch_angle):
         """
         Calculate the velocity to publish to '/drive.'
@@ -81,9 +95,9 @@ class RaceCar:
         v = self.pid.update(error, self.dt)
         return v
 
-    def get_state_response(self, plot=True):
+    def get_state_response(self, plot=False):
         """
-        Generate state response of PID with control input v
+        Generate state response of PID
         :param plot: flag to plot pitch angles
         :return:
         """
@@ -93,20 +107,29 @@ class RaceCar:
         distances = []
         timestamps = []
         pid_velocities = []
+        pitch_angles_no_pid = []
+        traj_no_pid = []
         print(f'total flight time is {self.t_flight} s')
         while t_elapsed < self.t_flight:
             distance_x, distance_y = self.get_gt_position(t_elapsed)
             t_elapsed += self.dt
-            # angular_velocity = self.step(t_elapsed, v, self.dt)
-            # pitch_angle = prev_angle + self.dt * angular_velocity
             pitch_angle = self.get_pitch_angle()
             v_PID = self.step(pitch_angle)
             self.prev_v = v_PID
-            traj.append((distance_x, distance_y, pitch_angle, t_elapsed))
+            traj.append([distance_x, distance_y, pitch_angle, t_elapsed])
             pid_velocities.append(v_PID)
             pitch_angles.append(pitch_angle)
             distances.append(distance_x)
             timestamps.append(t_elapsed)
+        distance_y = 100.0
+        t_elapsed = 0
+        while distance_y >= 0:
+            distance_x, distance_y = self.get_gt_position(t_elapsed)
+            t_elapsed += self.dt
+            # Simulate no pid state responses
+            pitch_angle_no_pid = self.get_pitch_angle_no_pid()
+            pitch_angles_no_pid.append(pitch_angle_no_pid)
+            traj_no_pid.append([distance_x, distance_y, pitch_angle_no_pid, t_elapsed])
         if plot:
             plt.plot(timestamps, pitch_angles)
             plt.title('pitch angles vs. t')
@@ -123,7 +146,7 @@ class RaceCar:
             plt.xlabel('t')
             plt.show()
 
-        return pitch_angles, traj
+        return pitch_angles, traj, pitch_angles_no_pid, traj_no_pid
 
     def get_distance_from_take_off_v(self):
         """

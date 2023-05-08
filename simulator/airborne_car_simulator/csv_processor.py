@@ -37,17 +37,22 @@ def read_messages(vel_csv: str, pitch_csv: str, motor_csv: str):
         if i == 0:
             continue
         else:
-            pitch_values.append(float(row[-1]))
+            pitch_values.append(round(float(row[-1]), 6))
     # Plot velocity
     vel_values = []
     elapsed_time = []
+    first_time = None
+    flag = False
     for i, row in enumerate(vel_data):
         if i == 0:
             continue
         else:
             if float(start_time) - 0.01 <= float(row[0]) <= float(end_time) + 0.01:
-                vel_values.append(row[-1])
-                elapsed_time.append(row[0])
+                if not flag:
+                    first_time = row[0]
+                    flag = True
+                vel_values.append(round(float(row[-1]), 6))
+                elapsed_time.append(float(row[0]) - float(first_time))
     # Plot motor speed
     motor_values = []
     for i, row in enumerate(motor_data):
@@ -57,22 +62,20 @@ def read_messages(vel_csv: str, pitch_csv: str, motor_csv: str):
 
             if float(start_time) - 0.01 <= float(row[0]) <= float(end_time) + 0.01:
                 print(row[0])
-                motor_values.append(row[-1])
+                motor_values.append(round(float(row[-1]), 6))
     print(
         f'pitch len: {len(pitch_data[1:])}, vel len: {len(vel_values)}, motor len: {len(motor_values)}')
-    fig, axs = plt.subplots(3, sharex=True, sharey=True)
+    fig, axs = plt.subplots(3, sharex=True, sharey=False)
     fig.suptitle('Experiment plots')
     axs[0].plot(elapsed_time, pitch_values)
-    axs[0].set_title('pitch error vs. t')
+    axs[0].set_title('Pitch error vs. t')
     axs[0].set_ylabel('pitch error (rad)')
-    axs[0].set_xlabel('t (s)')
-    axs[1].plot(elapsed_time, vel_values,'tab:orange')
-    axs[1].set_title('Velocity vs. t (s)')
+    axs[1].plot(elapsed_time, vel_values, 'tab:orange')
+    axs[1].set_title('Velocity vs. t')
     axs[1].set_ylabel('velocity (m/s)')
-    axs[1].set_xlabel('t (s)')
     axs[2].plot(elapsed_time, motor_values, 'tab:green')
     axs[2].set_title('Motor speed vs. t')
-    axs[2].set_ylabel('motor speed (m/s)')
+    axs[2].set_ylabel('motor speed (revolutions per minute)')
     axs[2].set_xlabel('t (s)')
     plt.show()
 

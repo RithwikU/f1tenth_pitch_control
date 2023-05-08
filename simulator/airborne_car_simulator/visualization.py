@@ -21,8 +21,7 @@ def animate_trajectory(car):
 
     u = car.take_off_v
     theta = car.angle0
-    pitch_angles, _ = car.get_state_response()
-    print(pitch_angles)
+    pitch_angles, traj, _, _ = car.get_state_response()
 
     t = np.linspace(0, car.t_flight, len(pitch_angles))
     x = u * np.cos(theta) * t
@@ -59,8 +58,10 @@ def animate_trajectory(car):
         return line, rect
 
     ani = animation.FuncAnimation(fig, update, len(x), fargs=[x, y, line, rect, pitch_angles],
-                                  interval=25, blit=True)
-
+                                  interval=5, blit=True)
+    plt.title('Animation of car motion')
+    plt.ylabel('Height (m)')
+    plt.xlabel('Range (m)')
     plt.show()
 
 
@@ -69,15 +70,15 @@ def overlay_trajectory(car):
     Get the overlay car trajectory plot.
     :param car: RaceCar object
     """
-    pitch_angles, traj = car.get_state_response()
+    pitch_angles, traj, pitch_angles_no_pid, traj_no_pid = car.get_state_response()
     interval = 20
     fig, ax = plt.subplots()
-    ax.set_xlim(0, 7.0)
-    ax.set_ylim(0, 7.0)
+    ax.set_xlim(0, 3.0)
+    ax.set_ylim(0, 3.0)
     for i, s in enumerate(traj):
         x, y, pitch, t = s[:4]
-        car_xmin = x# - car.l / 2
-        car_ymin = y# - car.h / 2
+        car_xmin = x #- car.l / 2
+        car_ymin = y #- car.h / 2
         car_fig = mpl.patches.Rectangle(
             (car_xmin,
              car_ymin),
@@ -85,12 +86,35 @@ def overlay_trajectory(car):
             car.h,
             rotation_point='center',
             alpha=(0.8 * i) / len(traj))
-        rotation = mpl.transforms.Affine2D().rotate(pitch) \
-                   .translate(x-0.5*car.l, y-0.5*car.h) + ax.transData
+        # rotation = mpl.transforms.Affine2D().rotate(pitch) \
+        #            .translate(x-0.5*car.l, y-0.5*car.h) + ax.transData
+        rotation = mpl.transforms.Affine2D().rotate(pitch).translate(0.7*car.l, 0.7*car.h) + ax.transData
         car_fig.set_transform(rotation)
         if i % interval == 0:
             ax.add_patch(car_fig)
+
+    for i, s in enumerate(traj_no_pid):
+        x, y, pitch, t = s[:4]
+        car_xmin = x# - car.l / 2
+        car_ymin = y# - car.h / 2
+        car_fig_ = mpl.patches.Rectangle(
+            (car_xmin,
+             car_ymin),
+            car.l,
+            car.h,
+            rotation_point='center',
+            color='red',
+            alpha=(0.8 * i) / len(traj))
+        rotation = mpl.transforms.Affine2D().rotate(pitch) \
+                   .translate(x-0.5*car.l, y-0.5*car.h) + ax.transData
+        car_fig_.set_transform(rotation)
+        if i % interval == 0:
+            ax.add_patch(car_fig_)
+
+    plt.legend()
     plt.title('Overlay car trajectory')
+    plt.ylabel('Height (m)')
+    plt.xlabel('Range (m)')
     plt.show()
 
 
