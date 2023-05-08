@@ -81,7 +81,7 @@ class RaceCar:
         v = self.pid.update(error, self.dt)
         return v
 
-    def get_state_response(self, plot=False):
+    def get_state_response(self, plot=True):
         """
         Generate state response of PID with control input v
         :param plot: flag to plot pitch angles
@@ -92,6 +92,7 @@ class RaceCar:
         traj = []  # (x, y, pitch, t)
         distances = []
         timestamps = []
+        pid_velocities = []
         print(f'total flight time is {self.t_flight} s')
         while t_elapsed < self.t_flight:
             distance_x, distance_y = self.get_gt_position(t_elapsed)
@@ -102,6 +103,7 @@ class RaceCar:
             v_PID = self.step(pitch_angle)
             self.prev_v = v_PID
             traj.append((distance_x, distance_y, pitch_angle, t_elapsed))
+            pid_velocities.append(v_PID)
             pitch_angles.append(pitch_angle)
             distances.append(distance_x)
             timestamps.append(t_elapsed)
@@ -110,13 +112,17 @@ class RaceCar:
             plt.title('pitch angles vs. t')
             plt.ylabel('Pitch angle')
             plt.xlabel('t')
-            plt.show()
 
             plt.plot(distances, pitch_angles)
             plt.title('pitch angles vs. distance')
             plt.ylabel('Pitch angle')
             plt.xlabel('distances')
+            plt.plot(timestamps, pid_velocities)
+            plt.title('velocity vs. t')
+            plt.ylabel('Velocity')
+            plt.xlabel('t')
             plt.show()
+
         return pitch_angles, traj
 
     def get_distance_from_take_off_v(self):

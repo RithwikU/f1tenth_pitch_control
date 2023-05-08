@@ -21,4 +21,4 @@ if __name__ == '__main__':
     animate_trajectory(car1)
     car2 = RaceCar(params)
     overlay_trajectory(car2)
-    plot_projectile_motion(car1)
+    # plot_projectile_motion(car1)
